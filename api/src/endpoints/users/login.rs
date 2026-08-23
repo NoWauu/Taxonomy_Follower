@@ -12,6 +12,7 @@ use super::provider::Credentials;
 #[utoipa::path(
     post,
     path = "/login",
+    operation_id = "login",
     tag = super::TAG,
     request_body = LoginRequest,
     responses(

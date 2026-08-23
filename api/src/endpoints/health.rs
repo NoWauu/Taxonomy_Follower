@@ -6,6 +6,7 @@ use crate::AppState;
 #[utoipa::path(
     get,
     path = "/health",
+    operation_id = "healthCheck",
     tag = super::HEALTH_TAG,
     responses(
         (status = OK, description = "API and database are reachable", body = String, example = json!("OK")),

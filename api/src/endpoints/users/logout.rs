@@ -12,6 +12,7 @@ use super::models::{MessageResponse, RefreshRequest};
 #[utoipa::path(
     post,
     path = "/logout",
+    operation_id = "logout",
     tag = super::TAG,
     request_body = RefreshRequest,
     responses(
@@ -34,6 +35,7 @@ pub async fn handler(
 #[utoipa::path(
     post,
     path = "/logout/all",
+    operation_id = "logoutEverywhere",
     tag = super::TAG,
     security(("bearer_auth" = [])),
     responses(

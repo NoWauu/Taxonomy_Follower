@@ -15,6 +15,7 @@ use super::models::{User, VerifyTokenRequest, VerifyTokenResponse};
 #[utoipa::path(
     post,
     path = "/token/verify",
+    operation_id = "verifyToken",
     tag = super::TAG,
     request_body = VerifyTokenRequest,
     responses(
@@ -47,6 +48,7 @@ pub async fn handler(
 #[utoipa::path(
     get,
     path = "/me",
+    operation_id = "getCurrentUser",
     tag = super::TAG,
     security(("bearer_auth" = [])),
     responses(

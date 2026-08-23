@@ -16,6 +16,7 @@ use super::provider::NewAccount;
 #[utoipa::path(
     post,
     path = "/register",
+    operation_id = "registerUser",
     tag = super::TAG,
     request_body = RegisterRequest,
     responses(

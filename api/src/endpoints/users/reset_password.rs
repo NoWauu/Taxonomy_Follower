@@ -13,6 +13,7 @@ use super::models::{MessageResponse, ResetPasswordRequest};
 #[utoipa::path(
     post,
     path = "/password/reset",
+    operation_id = "resetPassword",
     tag = super::TAG,
     request_body = ResetPasswordRequest,
     responses(

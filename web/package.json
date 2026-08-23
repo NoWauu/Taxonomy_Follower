@@ -6,12 +6,15 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit",
+    "generate:api": "node scripts/generate-api.mjs"
   },
   "dependencies": {
     "@swagger-api/apidom-core": "^1.12.0",
     "@swagger-api/apidom-ns-openapi-3-1": "^1.12.0",
     "next": "16.3.1",
+    "openapi-fetch": "^0.17.0",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "swagger-ui-react": "^5.32.14"
@@ -23,6 +26,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.3.1",
+    "openapi-typescript": "^7.13.0",
     "tailwindcss": "^4",
     "typescript": "^5"
   },

@@ -14,6 +14,7 @@ use super::models::{ForgotPasswordRequest, MessageResponse};
 #[utoipa::path(
     post,
     path = "/password/forgot",
+    operation_id = "forgotPassword",
     tag = super::TAG,
     request_body = ForgotPasswordRequest,
     responses(

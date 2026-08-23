@@ -14,6 +14,7 @@ use super::models::{RefreshRequest, TokenPair};
 #[utoipa::path(
     post,
     path = "/token/refresh",
+    operation_id = "refreshToken",
     tag = super::TAG,
     request_body = RefreshRequest,
     responses(
