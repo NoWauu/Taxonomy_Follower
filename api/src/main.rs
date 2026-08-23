@@ -1,21 +1,40 @@
-use axum::{Router, routing::get};
+use std::sync::Arc;
+
+use axum::http::{Method, header};
 use sqlx::postgres::PgPoolOptions;
+use tower_http::cors::CorsLayer;
 
-use crate::endpoints::health;
+use crate::config::Config;
+use crate::endpoints::users::{LocalLoginProvider, LoginProvider};
 
+mod config;
 mod endpoints;
+mod error;
+mod mail;
 
 #[derive(Clone)]
-struct AppState {
-    db: sqlx::PgPool
+pub struct AppState {
+    pub db: sqlx::PgPool,
+    pub config: Config,
+    pub login: Arc<dyn LoginProvider>,
 }
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
+    // Emitting the spec must work without a database or any environment, so it
+    // is handled before anything else is set up.
+    if std::env::args().any(|arg| arg == "--dump-openapi") {
+        println!("{}", endpoints::openapi().to_pretty_json()?);
+        return Ok(());
+    }
+
     dotenvy::dotenv().ok();
     tracing_subscriber::fmt()
         .with_env_filter(tracing_subscriber::EnvFilter::from_default_env())
         .init();
+
+    let config = Config::from_env()?;
+    let mailer = mail::from_config(&config.mail)?;
 
     let database_url = std::env::var("DATABASE_URL")?;
     let pool = PgPoolOptions::new()
@@ -25,20 +44,47 @@ async fn main() -> anyhow::Result<()> {
 
     sqlx::migrate!().run(&pool).await?;
 
+    let login = Arc::new(LocalLoginProvider::new(
+        pool.clone(),
+        config.clone(),
+        mailer,
+    ));
+
+    let cors = CorsLayer::new()
+        .allow_origin(config.cors_allowed_origins.clone())
+        .allow_methods([
+            Method::GET,
+            Method::POST,
+            Method::PUT,
+            Method::PATCH,
+            Method::DELETE,
+        ])
+        .allow_headers([header::AUTHORIZATION, header::CONTENT_TYPE]);
+
+    let port = config.port;
+    let public_url = config.public_url.clone();
+
     let state = AppState {
-        db: pool
+        db: pool,
+        config,
+        login,
     };
 
-    let app = Router::new()
-    .route("/health", get(health))
-    .with_state(state);
+    let (router, _api) = endpoints::build(Some(&public_url));
+    let app = router.layer(cors).with_state(state);
 
-    let listener =
-        tokio::net::TcpListener::bind("0.0.0.0:3000")
-            .await?;
+    let listener = tokio::net::TcpListener::bind(("0.0.0.0", port)).await?;
+    tracing::info!("listening on {}", listener.local_addr()?);
+    tracing::info!(
+        "OpenAPI document at http://{}{}",
+        listener.local_addr()?,
+        endpoints::OPENAPI_PATH
+    );
 
     axum::serve(listener, app)
-        .with_graceful_shutdown(async { tokio::signal::ctrl_c().await.ok(); })
+        .with_graceful_shutdown(async {
+            tokio::signal::ctrl_c().await.ok();
+        })
         .await?;
 
     Ok(())

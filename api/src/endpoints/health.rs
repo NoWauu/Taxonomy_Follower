@@ -2,7 +2,17 @@ use axum::{extract::State, http::StatusCode};
 
 use crate::AppState;
 
-pub async fn main(
+/// Liveness and database connectivity probe
+#[utoipa::path(
+    get,
+    path = "/health",
+    tag = super::HEALTH_TAG,
+    responses(
+        (status = OK, description = "API and database are reachable", body = String, example = json!("OK")),
+        (status = INTERNAL_SERVER_ERROR, description = "The database could not be reached", body = String),
+    ),
+)]
+pub async fn handler(
     State(state): State<AppState>,
 ) -> Result<&'static str, (StatusCode, &'static str)> {
     sqlx::query("SELECT 1")
