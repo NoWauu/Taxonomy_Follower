@@ -102,10 +102,7 @@ pub struct RouteRequest {
 
 impl RouteRequest {
     pub fn new(waypoints: Vec<Coordinates>, profile: RouteProfile) -> Self {
-        Self {
-            waypoints,
-            profile,
-        }
+        Self { waypoints, profile }
     }
 
     /// Rejects requests no provider could answer, so every implementation can
@@ -182,7 +179,10 @@ pub trait RoutingProvider: Send + Sync + 'static {
 /// way missing SMTP settings downgrade mail delivery to logging.
 pub fn from_config(config: &RoutingConfig) -> anyhow::Result<Arc<dyn RoutingProvider>> {
     match &config.mapbox {
-        Some(mapbox) => Ok(Arc::new(MapboxRoutingProvider::new(mapbox, config.timeout)?)),
+        Some(mapbox) => Ok(Arc::new(MapboxRoutingProvider::new(
+            mapbox,
+            config.timeout,
+        )?)),
         None => Ok(Arc::new(HaversineRoutingProvider::new())),
     }
 }

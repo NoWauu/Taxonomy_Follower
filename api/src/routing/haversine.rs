@@ -70,3 +70,69 @@ fn haversine_meters(from: Coordinates, to: Coordinates) -> f64 {
 
     2.0 * EARTH_RADIUS_METERS * a.sqrt().asin()
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::routing::RouteProfile;
+
+    const GARE_DE_LYON: Coordinates = Coordinates {
+        latitude: 48.844_444,
+        longitude: 2.373_611,
+    };
+    const GARE_DE_LILLE: Coordinates = Coordinates {
+        latitude: 50.637_9,
+        longitude: 3.070_6,
+    };
+
+    #[test]
+    fn haversine_matches_the_known_paris_lille_distance() {
+        let meters = haversine_meters(GARE_DE_LYON, GARE_DE_LILLE);
+        // ~204 km as the crow flies; a percent of slack covers the radius model.
+        assert!(
+            (202_000.0..206_000.0).contains(&meters),
+            "unexpected distance: {meters}"
+        );
+    }
+
+    #[tokio::test]
+    async fn a_route_sums_its_legs_and_is_flagged_as_estimated() {
+        let route = HaversineRoutingProvider
+            .route(RouteRequest::new(
+                vec![GARE_DE_LYON, GARE_DE_LILLE, GARE_DE_LYON],
+                RouteProfile::Driving,
+            ))
+            .await
+            .expect("the route should be computable");
+
+        assert_eq!(route.legs.len(), 2);
+        assert!(route.estimated);
+        assert!(route.geometry.is_none());
+        let summed: f64 = route.legs.iter().map(|leg| leg.distance_meters).sum();
+        assert!((route.distance_meters - summed).abs() < 1e-6);
+        assert!(route.duration_seconds > 0.0);
+    }
+
+    #[tokio::test]
+    async fn a_single_waypoint_is_rejected() {
+        let error = HaversineRoutingProvider
+            .route(RouteRequest::new(vec![GARE_DE_LYON], RouteProfile::Driving))
+            .await
+            .expect_err("one waypoint is not a route");
+
+        assert!(matches!(error, crate::error::ApiError::BadRequest(_)));
+    }
+
+    #[tokio::test]
+    async fn driving_traffic_refuses_more_than_three_waypoints() {
+        let error = HaversineRoutingProvider
+            .route(RouteRequest::new(
+                vec![GARE_DE_LYON; 4],
+                RouteProfile::DrivingTraffic,
+            ))
+            .await
+            .expect_err("driving-traffic is capped at three waypoints");
+
+        assert!(matches!(error, crate::error::ApiError::BadRequest(_)));
+    }
+}

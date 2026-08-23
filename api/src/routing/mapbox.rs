@@ -86,7 +86,9 @@ impl RoutingProvider for MapboxRoutingProvider {
             format!("unexpected Mapbox Directions response (HTTP {status}): {body}")
         })?;
 
-        match payload.code.as_str() {
+        // A 401 or a 5xx from the edge carries no `code` at all, hence the
+        // fallback: anything unrecognised lands in the catch-all arm below.
+        match payload.code.as_deref().unwrap_or("Unknown") {
             "Ok" => {}
             // The waypoints are fine, there is simply no road connecting them.
             "NoRoute" | "NoSegment" => {
@@ -136,7 +138,8 @@ impl RoutingProvider for MapboxRoutingProvider {
 
 #[derive(Debug, Deserialize)]
 struct DirectionsResponse {
-    code: String,
+    #[serde(default)]
+    code: Option<String>,
     message: Option<String>,
     #[serde(default)]
     routes: Vec<DirectionsRoute>,

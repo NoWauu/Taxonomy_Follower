@@ -8,9 +8,9 @@ use utoipa_axum::routes;
 use crate::AppState;
 
 mod health;
-pub mod users;
-pub mod trips;
 pub mod locations;
+pub mod trips;
+pub mod users;
 
 /// OpenAPI tag for the health probe.
 pub const HEALTH_TAG: &str = "health";

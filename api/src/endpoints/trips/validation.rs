@@ -62,7 +62,9 @@ pub async fn ensure_route_is_valid(
             .collect::<Vec<_>>()
             .join(", ");
 
-        return Err(ApiError::BadRequest(format!("unknown location ids: {list}")));
+        return Err(ApiError::BadRequest(format!(
+            "unknown location ids: {list}"
+        )));
     }
 
     Ok(())
