@@ -15,6 +15,7 @@ use utoipa_axum::routes;
 
 use crate::AppState;
 
+pub use extractor::AuthenticatedUser;
 pub use local::LocalLoginProvider;
 pub use provider::LoginProvider;
 

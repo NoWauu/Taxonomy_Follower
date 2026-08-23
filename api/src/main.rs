@@ -6,17 +6,20 @@ use tower_http::cors::CorsLayer;
 
 use crate::config::Config;
 use crate::endpoints::users::{LocalLoginProvider, LoginProvider};
+use crate::routing::RoutingProvider;
 
 mod config;
 mod endpoints;
 mod error;
 mod mail;
+mod routing;
 
 #[derive(Clone)]
 pub struct AppState {
     pub db: sqlx::PgPool,
     pub config: Config,
     pub login: Arc<dyn LoginProvider>,
+    pub routing: Arc<dyn RoutingProvider>,
 }
 
 #[tokio::main]
@@ -35,6 +38,7 @@ async fn main() -> anyhow::Result<()> {
 
     let config = Config::from_env()?;
     let mailer = mail::from_config(&config.mail)?;
+    let routing = routing::from_config(&config.routing)?;
 
     let database_url = std::env::var("DATABASE_URL")?;
     let pool = PgPoolOptions::new()
@@ -68,6 +72,7 @@ async fn main() -> anyhow::Result<()> {
         db: pool,
         config,
         login,
+        routing,
     };
 
     let (router, _api) = endpoints::build(Some(&public_url));

@@ -1,0 +1,222 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT t.id,\n                  t.created_by,\n                  t.start_date,\n                  t.available_seats,\n                  t.created_at,\n                  t.updated_at,\n                  s.id   AS \"start_location_id!\",\n                  s.name AS \"start_location_name!\",\n                  ST_Y(s.position::geometry) AS \"start_location_latitude!\",\n                  ST_X(s.position::geometry) AS \"start_location_longitude!\",\n                  s.created_at AS \"start_location_created_at!\",\n                  s.updated_at AS \"start_location_updated_at!\",\n                  e.id   AS \"end_location_id!\",\n                  e.name AS \"end_location_name!\",\n                  ST_Y(e.position::geometry) AS \"end_location_latitude!\",\n                  ST_X(e.position::geometry) AS \"end_location_longitude!\",\n                  e.created_at AS \"end_location_created_at!\",\n                  e.updated_at AS \"end_location_updated_at!\"\n             FROM trips t\n             JOIN locations s ON s.id = t.start_location_id\n             JOIN locations e ON e.id = t.end_location_id\n            WHERE ($1::int IS NULL OR t.start_location_id = $1::int)\n              AND ($2::int IS NULL OR t.end_location_id = $2::int)\n              AND ($3::timestamptz IS NULL OR t.start_date >= $3::timestamptz)\n              AND ($4::timestamptz IS NULL OR t.start_date <= $4::timestamptz)\n              AND ($5::int IS NULL OR t.available_seats >= $5::int)\n              AND ($6::uuid IS NULL OR t.created_by = $6::uuid)\n              AND (\n                   $7::double precision IS NULL\n                   OR ST_DWithin(\n                          s.position,\n                          ST_SetSRID(ST_MakePoint($8::double precision, $7::double precision), 4326)::geography,\n                          $9::double precision\n                      )\n                  )\n            ORDER BY t.start_date ASC, t.id ASC\n            LIMIT $10 OFFSET $11",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "trips",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "created_by",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "trips",
+            "name": "created_by"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "start_date",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "trips",
+            "name": "start_date"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "available_seats",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "trips",
+            "name": "available_seats"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "created_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "trips",
+            "name": "created_at"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "updated_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "trips",
+            "name": "updated_at"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "start_location_id!",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "locations",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "start_location_name!",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "locations",
+            "name": "name"
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "start_location_latitude!",
+        "type_info": "Float8",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 9,
+        "name": "start_location_longitude!",
+        "type_info": "Float8",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 10,
+        "name": "start_location_created_at!",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "locations",
+            "name": "created_at"
+          }
+        }
+      },
+      {
+        "ordinal": 11,
+        "name": "start_location_updated_at!",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "locations",
+            "name": "updated_at"
+          }
+        }
+      },
+      {
+        "ordinal": 12,
+        "name": "end_location_id!",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "locations",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 13,
+        "name": "end_location_name!",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "locations",
+            "name": "name"
+          }
+        }
+      },
+      {
+        "ordinal": 14,
+        "name": "end_location_latitude!",
+        "type_info": "Float8",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 15,
+        "name": "end_location_longitude!",
+        "type_info": "Float8",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 16,
+        "name": "end_location_created_at!",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "locations",
+            "name": "created_at"
+          }
+        }
+      },
+      {
+        "ordinal": 17,
+        "name": "end_location_updated_at!",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "locations",
+            "name": "updated_at"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int4",
+        "Int4",
+        "Timestamptz",
+        "Timestamptz",
+        "Int4",
+        "Uuid",
+        "Float8",
+        "Float8",
+        "Float8",
+        "Int8",
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      null,
+      null,
+      false,
+      false,
+      false,
+      false,
+      null,
+      null,
+      false,
+      false
+    ]
+  },
+  "hash": "cb326c867f90e4eec31943be2845e2d59debc69ffee28c814afe5cabe2803051"
+}

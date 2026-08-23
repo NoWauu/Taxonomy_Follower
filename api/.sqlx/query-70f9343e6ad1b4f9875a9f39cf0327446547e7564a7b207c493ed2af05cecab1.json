@@ -1,0 +1,90 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT id,\n                  name,\n                  ST_Y(position::geometry) AS \"latitude!\",\n                  ST_X(position::geometry) AS \"longitude!\",\n                  CASE\n                      WHEN $2::double precision IS NULL THEN NULL::double precision\n                      ELSE ST_Distance(\n                               position,\n                               ST_SetSRID(ST_MakePoint($3::double precision, $2::double precision), 4326)::geography\n                           )\n                  END AS \"distance_meters\",\n                  created_at,\n                  updated_at\n             FROM locations\n            WHERE ($1::text IS NULL OR strpos(lower(name), lower($1::text)) > 0)\n              AND (\n                   $2::double precision IS NULL\n                   OR ST_DWithin(\n                          position,\n                          ST_SetSRID(ST_MakePoint($3::double precision, $2::double precision), 4326)::geography,\n                          $4::double precision\n                      )\n                  )\n            ORDER BY \"distance_meters\" ASC NULLS LAST, name ASC, id ASC\n            LIMIT $5 OFFSET $6",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "locations",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "name",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "locations",
+            "name": "name"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "latitude!",
+        "type_info": "Float8",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 3,
+        "name": "longitude!",
+        "type_info": "Float8",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 4,
+        "name": "distance_meters",
+        "type_info": "Float8",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 5,
+        "name": "created_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "locations",
+            "name": "created_at"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "updated_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "locations",
+            "name": "updated_at"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Float8",
+        "Float8",
+        "Float8",
+        "Int8",
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      null,
+      null,
+      null,
+      false,
+      false
+    ]
+  },
+  "hash": "70f9343e6ad1b4f9875a9f39cf0327446547e7564a7b207c493ed2af05cecab1"
+}

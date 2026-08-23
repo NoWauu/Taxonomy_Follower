@@ -1,0 +1,114 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT ts.id,\n                  ts.trip_id,\n                  ts.stop_order,\n                  l.id   AS \"location_id!\",\n                  l.name AS \"location_name!\",\n                  ST_Y(l.position::geometry) AS \"location_latitude!\",\n                  ST_X(l.position::geometry) AS \"location_longitude!\",\n                  l.created_at AS \"location_created_at!\",\n                  l.updated_at AS \"location_updated_at!\"\n             FROM trip_stops ts\n             JOIN locations l ON l.id = ts.stop_location_id\n            WHERE ts.trip_id = ANY($1::int[])\n            ORDER BY ts.trip_id ASC, ts.stop_order ASC",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "trip_stops",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "trip_id",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "trip_stops",
+            "name": "trip_id"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "stop_order",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "trip_stops",
+            "name": "stop_order"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "location_id!",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "locations",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "location_name!",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "locations",
+            "name": "name"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "location_latitude!",
+        "type_info": "Float8",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 6,
+        "name": "location_longitude!",
+        "type_info": "Float8",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 7,
+        "name": "location_created_at!",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "locations",
+            "name": "created_at"
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "location_updated_at!",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "locations",
+            "name": "updated_at"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int4Array"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      null,
+      null,
+      false,
+      false
+    ]
+  },
+  "hash": "feb910bfd50de264aa39994ce343e4ba26dbc1f9e5c61415fee06e9bb5d284c6"
+}

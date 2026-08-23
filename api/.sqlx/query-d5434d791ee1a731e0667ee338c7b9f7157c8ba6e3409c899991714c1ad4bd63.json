@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT candidate AS \"candidate!\"\n             FROM unnest($1::int[]) AS candidate\n            WHERE NOT EXISTS (SELECT 1 FROM locations WHERE locations.id = candidate)",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "candidate!",
+        "type_info": "Int4",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int4Array"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "d5434d791ee1a731e0667ee338c7b9f7157c8ba6e3409c899991714c1ad4bd63"
+}

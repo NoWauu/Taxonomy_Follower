@@ -3,6 +3,8 @@ use std::time::Duration;
 use anyhow::Context;
 use axum::http::HeaderValue;
 
+use crate::routing::RouteProfile;
+
 #[derive(Clone, Debug)]
 pub struct Config {
     /// TCP port the API listens on.
@@ -17,6 +19,7 @@ pub struct Config {
     /// aims at the right host.
     pub public_url: String,
     pub mail: MailConfig,
+    pub routing: RoutingConfig,
     /// Browser origins allowed to call the API, e.g. the Next.js dev server.
     pub cors_allowed_origins: Vec<HeaderValue>,
 }
@@ -34,6 +37,25 @@ pub struct SmtpConfig {
     pub username: Option<String>,
     pub password: Option<String>,
     pub encryption: SmtpEncryption,
+}
+
+/// How trip itineraries are computed.
+#[derive(Clone, Debug)]
+pub struct RoutingConfig {
+    /// `None` disables real routing: distances fall back to straight lines.
+    pub mapbox: Option<MapboxConfig>,
+    /// Profile used when the caller does not pick one.
+    pub default_profile: RouteProfile,
+    /// How long a single routing call may take before it is given up on.
+    pub timeout: Duration,
+}
+
+#[derive(Clone, Debug)]
+pub struct MapboxConfig {
+    pub access_token: String,
+    /// Root the Directions API is called on. Overridable so tests can aim at a
+    /// local stub.
+    pub base_url: String,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -71,6 +93,7 @@ impl Config {
                 .trim_end_matches('/')
                 .to_string(),
             mail: MailConfig::from_env()?,
+            routing: RoutingConfig::from_env()?,
             cors_allowed_origins: cors_allowed_origins()?,
         })
     }
@@ -118,6 +141,29 @@ impl MailConfig {
                 encryption,
             }),
             sender,
+        })
+    }
+}
+
+impl RoutingConfig {
+    fn from_env() -> anyhow::Result<Self> {
+        let default_profile = match optional("ROUTING_PROFILE") {
+            Some(raw) => raw.parse()?,
+            None => RouteProfile::default(),
+        };
+
+        let mapbox = optional("MAPBOX_ACCESS_TOKEN").map(|access_token| MapboxConfig {
+            access_token,
+            base_url: optional("MAPBOX_BASE_URL")
+                .unwrap_or_else(|| "https://api.mapbox.com".to_string())
+                .trim_end_matches('/')
+                .to_string(),
+        });
+
+        Ok(Self {
+            mapbox,
+            default_profile,
+            timeout: duration_secs("ROUTING_TIMEOUT_SECONDS", 10)?,
         })
     }
 }

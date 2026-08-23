@@ -9,6 +9,8 @@ use crate::AppState;
 
 mod health;
 pub mod users;
+pub mod trips;
+pub mod locations;
 
 /// OpenAPI tag for the health probe.
 pub const HEALTH_TAG: &str = "health";
@@ -50,6 +52,8 @@ impl Modify for SecurityAddon {
     tags(
         (name = HEALTH_TAG, description = "Service and dependency probes"),
         (name = users::TAG, description = "Accounts, sessions and password recovery"),
+        (name = locations::TAG, description = "Places trips depart from, stop at and end in"),
+        (name = trips::TAG, description = "Trips offered by users, with their seats and stops"),
     ),
 )]
 pub struct ApiDoc;
@@ -73,6 +77,8 @@ pub fn build(public_url: Option<&str>) -> (Router<AppState>, utoipa::openapi::Op
     let (router, api) = OpenApiRouter::with_openapi(doc)
         .routes(routes!(health::handler))
         .nest("/users", users::router())
+        .nest("/locations", locations::router())
+        .nest("/trips", trips::router())
         .split_for_parts();
 
     let spec = api.clone();

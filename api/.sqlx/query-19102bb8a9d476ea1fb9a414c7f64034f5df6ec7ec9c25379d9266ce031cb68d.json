@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO trip_stops (trip_id, stop_location_id, stop_order)\n         SELECT $1, stop.location_id, (stop.ordinality - 1)::int\n           FROM unnest($2::int[]) WITH ORDINALITY AS stop(location_id, ordinality)",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int4",
+        "Int4Array"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "19102bb8a9d476ea1fb9a414c7f64034f5df6ec7ec9c25379d9266ce031cb68d"
+}

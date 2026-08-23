@@ -1,0 +1,212 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT t.id,\n                  t.created_by,\n                  t.start_date,\n                  t.available_seats,\n                  t.created_at,\n                  t.updated_at,\n                  s.id   AS \"start_location_id!\",\n                  s.name AS \"start_location_name!\",\n                  ST_Y(s.position::geometry) AS \"start_location_latitude!\",\n                  ST_X(s.position::geometry) AS \"start_location_longitude!\",\n                  s.created_at AS \"start_location_created_at!\",\n                  s.updated_at AS \"start_location_updated_at!\",\n                  e.id   AS \"end_location_id!\",\n                  e.name AS \"end_location_name!\",\n                  ST_Y(e.position::geometry) AS \"end_location_latitude!\",\n                  ST_X(e.position::geometry) AS \"end_location_longitude!\",\n                  e.created_at AS \"end_location_created_at!\",\n                  e.updated_at AS \"end_location_updated_at!\"\n             FROM trips t\n             JOIN locations s ON s.id = t.start_location_id\n             JOIN locations e ON e.id = t.end_location_id\n            WHERE t.id = $1",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "trips",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "created_by",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "trips",
+            "name": "created_by"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "start_date",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "trips",
+            "name": "start_date"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "available_seats",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "trips",
+            "name": "available_seats"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "created_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "trips",
+            "name": "created_at"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "updated_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "trips",
+            "name": "updated_at"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "start_location_id!",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "locations",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "start_location_name!",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "locations",
+            "name": "name"
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "start_location_latitude!",
+        "type_info": "Float8",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 9,
+        "name": "start_location_longitude!",
+        "type_info": "Float8",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 10,
+        "name": "start_location_created_at!",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "locations",
+            "name": "created_at"
+          }
+        }
+      },
+      {
+        "ordinal": 11,
+        "name": "start_location_updated_at!",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "locations",
+            "name": "updated_at"
+          }
+        }
+      },
+      {
+        "ordinal": 12,
+        "name": "end_location_id!",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "locations",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 13,
+        "name": "end_location_name!",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "locations",
+            "name": "name"
+          }
+        }
+      },
+      {
+        "ordinal": 14,
+        "name": "end_location_latitude!",
+        "type_info": "Float8",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 15,
+        "name": "end_location_longitude!",
+        "type_info": "Float8",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 16,
+        "name": "end_location_created_at!",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "locations",
+            "name": "created_at"
+          }
+        }
+      },
+      {
+        "ordinal": 17,
+        "name": "end_location_updated_at!",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "locations",
+            "name": "updated_at"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int4"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      null,
+      null,
+      false,
+      false,
+      false,
+      false,
+      null,
+      null,
+      false,
+      false
+    ]
+  },
+  "hash": "e5e8440235eb4d77f8f456491781a5b53c770ce2db8af8b2d0865b56baff6a52"
+}
