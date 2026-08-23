@@ -27,3 +27,12 @@ utoipa = { version = "5", features = ["axum_extras", "chrono", "uuid"] }
 utoipa-axum = "0.2.0"
 validator = { version = "0.21.0", features = ["derive"] }
 reqwest = { version = "0.13.4", default-features = false, features = ["json", "rustls", "http2", "charset", "query"] }
+
+[dev-dependencies]
+cucumber = "0.23.0"
+http-body-util = "0.1.5"
+tower = { version = "0.5.3", features = ["util"] }
+
+[[test]]
+name = "bdd"
+harness = false

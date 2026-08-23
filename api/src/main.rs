@@ -4,23 +4,9 @@ use axum::http::{Method, header};
 use sqlx::postgres::PgPoolOptions;
 use tower_http::cors::CorsLayer;
 
-use crate::config::Config;
-use crate::endpoints::users::{LocalLoginProvider, LoginProvider};
-use crate::routing::RoutingProvider;
-
-mod config;
-mod endpoints;
-mod error;
-mod mail;
-mod routing;
-
-#[derive(Clone)]
-pub struct AppState {
-    pub db: sqlx::PgPool,
-    pub config: Config,
-    pub login: Arc<dyn LoginProvider>,
-    pub routing: Arc<dyn RoutingProvider>,
-}
+use api::config::Config;
+use api::endpoints::users::LocalLoginProvider;
+use api::{AppState, endpoints, mail, routing};
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
